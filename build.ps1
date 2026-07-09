@@ -64,7 +64,13 @@ Write-Host "[1/3] Generated clock.ico" -ForegroundColor Green
 
 # ---------- 2) Build exe ----------
 $csc = Join-Path ([Runtime.InteropServices.RuntimeEnvironment]::GetRuntimeDirectory()) 'csc.exe'
-if (-not (Test-Path $csc)) { throw "csc.exe not found: $csc" }
+if (-not (Test-Path $csc)) {
+    $framework64 = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
+    $framework32 = Join-Path $env:WINDIR 'Microsoft.NET\Framework\v4.0.30319\csc.exe'
+    if (Test-Path $framework64) { $csc = $framework64 }
+    elseif (Test-Path $framework32) { $csc = $framework32 }
+    else { throw "csc.exe not found" }
+}
 $args = @(
     '/nologo','/target:winexe','/codepage:65001','/optimize+',
     '/out:WorldClock.exe','/win32icon:clock.ico','/win32manifest:app.manifest',
