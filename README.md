@@ -41,9 +41,9 @@ WorldClock 是一个 Windows 桌面世界时钟小组件。它会贴在桌面图
 
 ### 界面示例
 
-| 默认 | 柔夜 |
+| 极夜 | 柔夜 |
 | --- | --- |
-| ![默认主题示例](./img/default.jpg) | ![柔夜主题示例](./img/catppuccin.jpg) |
+| ![极夜主题示例](./img/nord.jpg) | ![柔夜主题示例](./img/catppuccin.jpg) |
 
 | 石墨 | 日间 |
 | --- | --- |
@@ -238,9 +238,9 @@ WorldClock is a Windows desktop world clock widget. It stays on the desktop icon
 
 ### Screenshots
 
-| Default | Catppuccin |
+| Nord | Catppuccin |
 | --- | --- |
-| ![Default theme screenshot](./img/default.jpg) | ![Catppuccin theme screenshot](./img/catppuccin.jpg) |
+| ![Nord theme screenshot](./img/nord.jpg) | ![Catppuccin theme screenshot](./img/catppuccin.jpg) |
 
 | Graphite | Daylight |
 | --- | --- |

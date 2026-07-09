@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1 - 2026-07-09
+
+- Added theme screenshots to the README.
+- Improved Daylight theme text rendering.
+- Added the Daylight theme screenshot asset.
+
 ## 1.0.0 - 2026-07-09
 
 - Added a time converter dialog for converting a selected city/date/time to current widget cities or all built-in cities.
