@@ -721,6 +721,10 @@ namespace WorldClockWidget
             pick.Click += delegate { if (ShowCityPicker()) ReloadCities(); };
             m.Items.Add(pick);
 
+            ToolStripMenuItem converter = new ToolStripMenuItem(T("时间换算器...", "Time Converter..."));
+            converter.Click += delegate { ShowTimeConverter(); };
+            m.Items.Add(converter);
+
             ToolStripMenuItem lang = new ToolStripMenuItem(T("语言", "Language"));
             AddLanguageItem(lang, "zh", "简体中文");
             AddLanguageItem(lang, "en", "English");
@@ -1116,6 +1120,229 @@ namespace WorldClockWidget
             try { File.WriteAllLines(citiesPath, lines, System.Text.Encoding.UTF8); } catch { }
             dlg.Dispose();
             return true;
+        }
+
+        void ShowTimeConverter()
+        {
+            ThemeDef t = CurrentTheme();
+            Form dlg = new Form();
+            dlg.Text = T("时间换算器", "Time Converter");
+            dlg.StartPosition = FormStartPosition.CenterScreen;
+            dlg.FormBorderStyle = FormBorderStyle.Sizable;
+            dlg.MinimumSize = new Size(560, 460);
+            dlg.ClientSize = new Size(620, 520);
+            dlg.ShowInTaskbar = false;
+            dlg.BackColor = t.Bg;
+            dlg.ForeColor = t.Fg;
+            dlg.Font = new Font("Segoe UI", 9.5F);
+            try { dlg.Icon = Icon; } catch { }
+
+            Panel top = new Panel();
+            top.Dock = DockStyle.Top;
+            top.Height = 118;
+            top.Padding = new Padding(12);
+            top.BackColor = t.Bg;
+
+            Label sourceLabel = new Label();
+            sourceLabel.Text = T("基准城市", "Base City");
+            sourceLabel.Left = 12;
+            sourceLabel.Top = 12;
+            sourceLabel.Width = 110;
+            sourceLabel.Height = 22;
+            sourceLabel.ForeColor = t.Mute;
+
+            ComboBox source = new ComboBox();
+            source.DropDownStyle = ComboBoxStyle.DropDownList;
+            source.Left = 12;
+            source.Top = 36;
+            source.Width = 250;
+            source.BackColor = t.Card;
+            source.ForeColor = t.Fg;
+            foreach (CatItem item in Catalog) source.Items.Add(item);
+            source.DisplayMember = null;
+            source.SelectedItem = FindCatalog(TimeZoneInfo.Local.DisplayName, TimeZoneInfo.Local.Id);
+            if (source.SelectedItem == null)
+            {
+                foreach (CatItem item in Catalog)
+                {
+                    if (String.Equals(item.TzId, TimeZoneInfo.Local.Id, StringComparison.OrdinalIgnoreCase))
+                    {
+                        source.SelectedItem = item;
+                        break;
+                    }
+                }
+            }
+            if (source.SelectedItem == null && source.Items.Count > 0) source.SelectedIndex = 0;
+
+            Label dateLabel = new Label();
+            dateLabel.Text = T("日期", "Date");
+            dateLabel.Left = 282;
+            dateLabel.Top = 12;
+            dateLabel.Width = 110;
+            dateLabel.Height = 22;
+            dateLabel.ForeColor = t.Mute;
+
+            DateTimePicker date = new DateTimePicker();
+            date.Left = 282;
+            date.Top = 36;
+            date.Width = 145;
+            date.Format = DateTimePickerFormat.Custom;
+            date.CustomFormat = "yyyy-MM-dd";
+            date.Value = DateTime.Now;
+
+            Label timeLabel = new Label();
+            timeLabel.Text = T("时间", "Time");
+            timeLabel.Left = 445;
+            timeLabel.Top = 12;
+            timeLabel.Width = 110;
+            timeLabel.Height = 22;
+            timeLabel.ForeColor = t.Mute;
+
+            DateTimePicker time = new DateTimePicker();
+            time.Left = 445;
+            time.Top = 36;
+            time.Width = 130;
+            time.Format = DateTimePickerFormat.Custom;
+            time.CustomFormat = use24Hour ? "HH:mm:ss" : "h:mm:ss tt";
+            time.ShowUpDown = true;
+            time.Value = DateTime.Now;
+
+            CheckBox allCities = new CheckBox();
+            allCities.Left = 12;
+            allCities.Top = 78;
+            allCities.Width = 240;
+            allCities.Height = 24;
+            allCities.Text = T("显示全部内置城市", "Show all built-in cities");
+            allCities.ForeColor = t.Fg;
+            allCities.BackColor = t.Bg;
+
+            Button now = new Button();
+            now.Text = T("现在", "Now");
+            now.Left = 282;
+            now.Top = 76;
+            now.Width = 70;
+            now.Height = 28;
+            now.FlatStyle = FlatStyle.Flat;
+            now.BackColor = t.Card;
+            now.ForeColor = t.Fg;
+            now.FlatAppearance.BorderColor = t.Line;
+
+            Button close = new Button();
+            close.Text = T("关闭", "Close");
+            close.Left = 505;
+            close.Top = 76;
+            close.Width = 70;
+            close.Height = 28;
+            close.FlatStyle = FlatStyle.Flat;
+            close.BackColor = t.Accent;
+            close.ForeColor = t.Bg;
+            close.FlatAppearance.BorderSize = 0;
+            close.Click += delegate { dlg.Close(); };
+
+            top.Controls.Add(sourceLabel);
+            top.Controls.Add(source);
+            top.Controls.Add(dateLabel);
+            top.Controls.Add(date);
+            top.Controls.Add(timeLabel);
+            top.Controls.Add(time);
+            top.Controls.Add(allCities);
+            top.Controls.Add(now);
+            top.Controls.Add(close);
+
+            ListView results = new ListView();
+            results.Dock = DockStyle.Fill;
+            results.View = View.Details;
+            results.FullRowSelect = true;
+            results.GridLines = false;
+            results.HideSelection = false;
+            results.BackColor = t.Card;
+            results.ForeColor = t.Fg;
+            results.BorderStyle = BorderStyle.None;
+            results.Columns.Add(T("城市", "City"), 170);
+            results.Columns.Add(T("日期", "Date"), 150);
+            results.Columns.Add(T("时间", "Time"), 120);
+            results.Columns.Add("UTC", 80);
+            results.Columns.Add(T("时区", "Time Zone"), 240);
+
+            Action update = delegate
+            {
+                CatItem src = source.SelectedItem as CatItem;
+                if (src == null) return;
+
+                TimeZoneInfo srcTz;
+                try { srcTz = TimeZoneInfo.FindSystemTimeZoneById(src.TzId); }
+                catch { return; }
+
+                DateTime srcLocal = new DateTime(
+                    date.Value.Year, date.Value.Month, date.Value.Day,
+                    time.Value.Hour, time.Value.Minute, time.Value.Second);
+                DateTime utc = TimeZoneInfo.ConvertTimeToUtc(srcLocal, srcTz);
+
+                List<City> targets = new List<City>();
+                if (allCities.Checked)
+                {
+                    foreach (CatItem item in Catalog)
+                    {
+                        try
+                        {
+                            targets.Add(new City
+                            {
+                                Key = item.Key,
+                                Zh = item.Zh,
+                                En = item.En,
+                                TzId = item.TzId,
+                                Tz = TimeZoneInfo.FindSystemTimeZoneById(item.TzId)
+                            });
+                        }
+                        catch { }
+                    }
+                }
+                else
+                {
+                    targets.AddRange(LoadCities());
+                }
+
+                results.BeginUpdate();
+                results.Items.Clear();
+                foreach (City c in targets)
+                {
+                    TimeZoneInfo tz = c.Tz ?? TimeZoneInfo.Local;
+                    DateTime converted = TimeZoneInfo.ConvertTimeFromUtc(utc, tz);
+                    TimeSpan off = tz.GetUtcOffset(utc);
+                    string sign = off < TimeSpan.Zero ? "-" : "+";
+                    int totalMinutes = Math.Abs((int)off.TotalMinutes);
+                    string offset = "UTC" + sign + (totalMinutes / 60).ToString("00") + ":" + (totalMinutes % 60).ToString("00");
+
+                    ListViewItem row = new ListViewItem(c.DisplayName(IsZh()));
+                    row.SubItems.Add(IsZh()
+                        ? converted.ToString("yyyy-MM-dd dddd", CultureInfo.GetCultureInfo("zh-CN"))
+                        : converted.ToString("ddd, MMM d, yyyy", CultureInfo.GetCultureInfo("en-US")));
+                    row.SubItems.Add(converted.ToString(TimeFormat(), CultureInfo.GetCultureInfo("en-US")));
+                    row.SubItems.Add(offset);
+                    row.SubItems.Add(tz.Id);
+                    if (String.Equals(c.TzId, src.TzId, StringComparison.OrdinalIgnoreCase))
+                        row.BackColor = t.Bg;
+                    results.Items.Add(row);
+                }
+                results.EndUpdate();
+            };
+
+            source.SelectedIndexChanged += delegate { update(); };
+            date.ValueChanged += delegate { update(); };
+            time.ValueChanged += delegate { update(); };
+            allCities.CheckedChanged += delegate { update(); };
+            now.Click += delegate
+            {
+                DateTime n = DateTime.Now;
+                date.Value = n;
+                time.Value = n;
+                update();
+            };
+
+            dlg.Controls.Add(results);
+            dlg.Controls.Add(top);
+            dlg.Shown += delegate { update(); };
+            dlg.Show(this);
         }
 
         List<City> LoadCities()

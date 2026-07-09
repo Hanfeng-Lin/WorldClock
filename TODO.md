@@ -35,6 +35,7 @@
 
 ## Later
 
+- [x] Time converter dialog.
 - [ ] GitHub Actions release build.
 - [ ] Automatic release zip upload.
 - [ ] Custom themes.

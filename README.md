@@ -31,6 +31,7 @@ WorldClock 是一个 Windows 桌面世界时钟小组件。它会贴在桌面图
 - 双语：支持简体中文和 English。
 - 主题：内置柔夜、石墨、极夜、日间主题。
 - 时间制式：支持 24 小时制和 12 小时制。
+- 时间换算器：选择基准城市和日期时间，换算到当前城市或全部内置城市。
 - 显示选项：支持秒数开关、字体大小和宽度预设。
 - 城市管理：支持搜索、排序和 80+ 内置城市/时区。
 - 行为选项：支持锁定位置、重置位置和点击穿透。
@@ -43,8 +44,8 @@ WorldClock 是一个 Windows 桌面世界时钟小组件。它会贴在桌面图
 
 最新版本：
 
-- [v0.2.0](https://github.com/Hanfeng-Lin/WorldClock/releases/tag/v0.2.0)
-- [WorldClock-v0.2.0.zip](https://github.com/Hanfeng-Lin/WorldClock/releases/download/v0.2.0/WorldClock-v0.2.0.zip)
+- [v1.0.0](https://github.com/Hanfeng-Lin/WorldClock/releases/tag/v1.0.0)
+- [WorldClock-v1.0.0.zip](https://github.com/Hanfeng-Lin/WorldClock/releases/download/v1.0.0/WorldClock-v1.0.0.zip)
 
 ### 使用
 
@@ -57,6 +58,7 @@ WorldClock 是一个 Windows 桌面世界时钟小组件。它会贴在桌面图
 右键小组件或系统托盘图标可以打开菜单：
 
 - `选择城市...`
+- `时间换算器...`
 - `语言`
 - `主题`
 - `时间制式`
@@ -215,6 +217,7 @@ WorldClock is a Windows desktop world clock widget. It stays on the desktop icon
 - Bilingual UI: Simplified Chinese and English.
 - Themes: Catppuccin, Graphite, Nord, and Daylight.
 - Time format: 24-hour and 12-hour modes.
+- Time converter: choose a base city and date/time, then convert to selected cities or all built-in cities.
 - Display options: seconds toggle, font size presets, and width presets.
 - City management: search, ordering, and 80+ built-in cities/time zones.
 - Behavior options: lock position, reset position, and click-through.
@@ -227,8 +230,8 @@ Download the latest zip from [GitHub Releases](https://github.com/Hanfeng-Lin/Wo
 
 Latest release:
 
-- [v0.2.0](https://github.com/Hanfeng-Lin/WorldClock/releases/tag/v0.2.0)
-- [WorldClock-v0.2.0.zip](https://github.com/Hanfeng-Lin/WorldClock/releases/download/v0.2.0/WorldClock-v0.2.0.zip)
+- [v1.0.0](https://github.com/Hanfeng-Lin/WorldClock/releases/tag/v1.0.0)
+- [WorldClock-v1.0.0.zip](https://github.com/Hanfeng-Lin/WorldClock/releases/download/v1.0.0/WorldClock-v1.0.0.zip)
 
 ### Usage
 
@@ -241,6 +244,7 @@ Extract the release zip and run:
 Right-click the widget or tray icon to open the menu:
 
 - `Choose Cities...`
+- `Time Converter...`
 - `Language`
 - `Theme`
 - `Time Format`

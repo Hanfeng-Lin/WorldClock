@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0 - 2026-07-09
+
+- Added a time converter dialog for converting a selected city/date/time to current widget cities or all built-in cities.
+
 ## 0.2.0 - 2026-07-09
 
 - Added tray icon.
