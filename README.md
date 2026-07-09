@@ -14,6 +14,7 @@ WorldClock 是一个 Windows 桌面世界时钟小组件。它会贴在桌面图
 ### 中文目录
 
 - [功能](#功能)
+- [界面示例](#界面示例)
 - [下载](#下载)
 - [使用](#使用)
 - [配置文件](#配置文件)
@@ -37,6 +38,16 @@ WorldClock 是一个 Windows 桌面世界时钟小组件。它会贴在桌面图
 - 行为选项：支持锁定位置、重置位置和点击穿透。
 - 托盘图标：点击穿透后仍可从系统托盘打开菜单。
 - 开机自启：右键菜单可开启或关闭。
+
+### 界面示例
+
+| 默认 | 柔夜 |
+| --- | --- |
+| ![默认主题示例](./img/default.jpg) | ![柔夜主题示例](./img/catppuccin.jpg) |
+
+| 石墨 | 日间 |
+| --- | --- |
+| ![石墨主题示例](./img/graphite.jpg) | ![日间主题示例](./img/daylight.jpg) |
 
 ### 下载
 
@@ -200,6 +211,7 @@ WorldClock is a Windows desktop world clock widget. It stays on the desktop icon
 ### Table Of Contents
 
 - [Features](#features)
+- [Screenshots](#screenshots)
 - [Download](#download)
 - [Usage](#usage)
 - [Configuration](#configuration)
@@ -223,6 +235,16 @@ WorldClock is a Windows desktop world clock widget. It stays on the desktop icon
 - Behavior options: lock position, reset position, and click-through.
 - Tray icon: keeps the menu accessible when click-through is enabled.
 - Startup: enable or disable Windows startup from the context menu.
+
+### Screenshots
+
+| Default | Catppuccin |
+| --- | --- |
+| ![Default theme screenshot](./img/default.jpg) | ![Catppuccin theme screenshot](./img/catppuccin.jpg) |
+
+| Graphite | Daylight |
+| --- | --- |
+| ![Graphite theme screenshot](./img/graphite.jpg) | ![Daylight theme screenshot](./img/daylight.jpg) |
 
 ### Download
 

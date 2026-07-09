@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Drawing.Text;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -342,6 +343,7 @@ namespace WorldClockWidget
         void ApplyFonts()
         {
             float s = FontScale();
+            bool daylight = String.Equals(CurrentTheme().Id, "daylight", StringComparison.OrdinalIgnoreCase);
             if (fZone != null) fZone.Dispose();
             if (fTime != null) fTime.Dispose();
             if (fDate != null) fDate.Dispose();
@@ -350,7 +352,7 @@ namespace WorldClockWidget
             if (fSub != null) fSub.Dispose();
 
             fZone = new Font("Segoe UI", 8.5f * s);
-            fTime = new Font("Segoe UI Semilight", 30f * s);
+            fTime = new Font(daylight ? "Segoe UI Semibold" : "Segoe UI Semilight", 30f * s);
             fDate = new Font("Segoe UI", 9.5f * s);
             fName = new Font("Segoe UI", 11f * s);
             fCity = new Font("Consolas", 12.5f * s, FontStyle.Bold);
@@ -603,9 +605,21 @@ namespace WorldClockWidget
             using (SolidBrush bg = new SolidBrush(t.Bg))
                 g.FillPath(bg, shell);
 
-            TextRenderer.DrawText(g, hdrZone, fZone, new Point(PAD, 14), t.Mute, TextFormatFlags.NoPadding);
-            TextRenderer.DrawText(g, hdrTime, fTime, new Point(PAD - 3, 26), t.Fg, TextFormatFlags.NoPadding);
-            TextRenderer.DrawText(g, hdrDate, fDate, new Point(PAD, 84), t.Accent, TextFormatFlags.NoPadding);
+            bool daylight = String.Equals(t.Id, "daylight", StringComparison.OrdinalIgnoreCase);
+            if (daylight) g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
+            if (daylight)
+            {
+                DrawText(g, hdrZone, fZone, t.Mute, new RectangleF(PAD, 13, WidgetWidth() - PAD * 2, 18), StringAlignment.Near, StringAlignment.Near, false);
+                DrawText(g, hdrTime, fTime, t.Fg, new RectangleF(PAD - 4, 22, WidgetWidth() - PAD * 2 + 8, 58), StringAlignment.Near, StringAlignment.Near, false);
+                DrawText(g, hdrDate, fDate, t.Accent, new RectangleF(PAD, 84, WidgetWidth() - PAD * 2, 18), StringAlignment.Near, StringAlignment.Near, false);
+            }
+            else
+            {
+                TextRenderer.DrawText(g, hdrZone, fZone, new Point(PAD, 14), t.Mute, TextFormatFlags.NoPadding);
+                TextRenderer.DrawText(g, hdrTime, fTime, new Point(PAD - 3, 26), t.Fg, TextFormatFlags.NoPadding);
+                TextRenderer.DrawText(g, hdrDate, fDate, new Point(PAD, 84), t.Accent, TextFormatFlags.NoPadding);
+            }
 
             using (Pen pen = new Pen(t.Line))
                 g.DrawLine(pen, PAD, SEP_Y, WidgetWidth() - PAD, SEP_Y);
@@ -614,19 +628,47 @@ namespace WorldClockWidget
             int rightW = 150;
             foreach (City c in cities)
             {
-                Rectangle nameRect = new Rectangle(PAD, y, WidgetWidth() - PAD * 2 - rightW + 40, ROWH);
-                TextRenderer.DrawText(g, c.DisplayName(IsZh()), fName, nameRect, t.Fg,
-                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding | TextFormatFlags.EndEllipsis);
+                if (daylight)
+                {
+                    RectangleF nameRect = new RectangleF(PAD, y, WidgetWidth() - PAD * 2 - rightW + 40, ROWH);
+                    DrawText(g, c.DisplayName(IsZh()), fName, t.Fg, nameRect, StringAlignment.Near, StringAlignment.Center, true);
 
-                Rectangle timeRect = new Rectangle(WidgetWidth() - PAD - rightW, y + 1, rightW, 20);
-                TextRenderer.DrawText(g, c.TimeStr, fCity, timeRect, t.Fg,
-                    TextFormatFlags.Right | TextFormatFlags.NoPadding);
+                    RectangleF timeRect = new RectangleF(WidgetWidth() - PAD - rightW, y - 1, rightW, 22);
+                    DrawText(g, c.TimeStr, fCity, t.Fg, timeRect, StringAlignment.Far, StringAlignment.Near, false);
 
-                Rectangle subRect = new Rectangle(WidgetWidth() - PAD - rightW, y + 19, rightW, 14);
-                TextRenderer.DrawText(g, c.SubStr, fSub, subRect, t.Mute,
-                    TextFormatFlags.Right | TextFormatFlags.NoPadding);
+                    RectangleF subRect = new RectangleF(WidgetWidth() - PAD - rightW, y + 18, rightW, 15);
+                    DrawText(g, c.SubStr, fSub, t.Mute, subRect, StringAlignment.Far, StringAlignment.Near, false);
+                }
+                else
+                {
+                    Rectangle nameRect = new Rectangle(PAD, y, WidgetWidth() - PAD * 2 - rightW + 40, ROWH);
+                    TextRenderer.DrawText(g, c.DisplayName(IsZh()), fName, nameRect, t.Fg,
+                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding | TextFormatFlags.EndEllipsis);
+
+                    Rectangle timeRect = new Rectangle(WidgetWidth() - PAD - rightW, y + 1, rightW, 20);
+                    TextRenderer.DrawText(g, c.TimeStr, fCity, timeRect, t.Fg,
+                        TextFormatFlags.Right | TextFormatFlags.NoPadding);
+
+                    Rectangle subRect = new Rectangle(WidgetWidth() - PAD - rightW, y + 19, rightW, 14);
+                    TextRenderer.DrawText(g, c.SubStr, fSub, subRect, t.Mute,
+                        TextFormatFlags.Right | TextFormatFlags.NoPadding);
+                }
 
                 y += ROWH;
+            }
+        }
+
+
+        void DrawText(Graphics g, string text, Font font, Color color, RectangleF bounds, StringAlignment align, StringAlignment lineAlign, bool ellipsis)
+        {
+            using (SolidBrush brush = new SolidBrush(color))
+            using (StringFormat format = new StringFormat())
+            {
+                format.Alignment = align;
+                format.LineAlignment = lineAlign;
+                format.FormatFlags = StringFormatFlags.NoWrap;
+                if (ellipsis) format.Trimming = StringTrimming.EllipsisCharacter;
+                g.DrawString(text, font, brush, bounds, format);
             }
         }
 
@@ -739,6 +781,7 @@ namespace WorldClockWidget
                 it.Click += delegate
                 {
                     themeId = selected.Id;
+                    ApplyFonts();
                     ApplyTheme();
                     SaveSettings();
                     BeginInvoke(new MethodInvoker(RebuildMenu));
