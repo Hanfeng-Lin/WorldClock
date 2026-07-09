@@ -36,8 +36,8 @@
 ## Later
 
 - [x] Time converter dialog.
-- [ ] GitHub Actions release build.
-- [ ] Automatic release zip upload.
+- [x] GitHub Actions release build.
+- [x] Automatic release zip upload.
 - [ ] Custom themes.
 - [ ] Import/export configuration.
 - [ ] Better Windows installer.
