@@ -1,4 +1,4 @@
-# WorldClock
+# WorldClock / Windows 桌面世界时钟小组件
 
 [中文](#中文) | [English](#english)
 
