@@ -1,9 +1,13 @@
-﻿$ErrorActionPreference = 'Stop'
+param(
+    [switch]$NoShortcut
+)
+
+$ErrorActionPreference = 'Stop'
 $dir = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $dir
 Add-Type -AssemblyName System.Drawing
 
-# ---------- 1) 生成时钟图标 clock.ico (含 PNG 的现代 ICO) ----------
+# ---------- 1) Generate clock.ico ----------
 function New-ClockIco($path) {
     $sz = 256
     $bmp = New-Object System.Drawing.Bitmap $sz, $sz
@@ -56,11 +60,11 @@ function New-ClockIco($path) {
     $bw.Flush(); $bw.Close(); $fs.Close()
 }
 New-ClockIco (Join-Path $dir 'clock.ico')
-Write-Host "[1/3] 图标已生成 clock.ico" -ForegroundColor Green
+Write-Host "[1/3] Generated clock.ico" -ForegroundColor Green
 
-# ---------- 2) 编译 exe ----------
+# ---------- 2) Build exe ----------
 $csc = Join-Path ([Runtime.InteropServices.RuntimeEnvironment]::GetRuntimeDirectory()) 'csc.exe'
-if (-not (Test-Path $csc)) { throw "找不到 csc.exe: $csc" }
+if (-not (Test-Path $csc)) { throw "csc.exe not found: $csc" }
 $args = @(
     '/nologo','/target:winexe','/codepage:65001','/optimize+',
     '/out:WorldClock.exe','/win32icon:clock.ico','/win32manifest:app.manifest',
@@ -69,20 +73,27 @@ $args = @(
     'WorldClock.cs'
 )
 & $csc $args
-if ($LASTEXITCODE -ne 0) { throw "编译失败" }
-Write-Host "[2/3] 编译完成 WorldClock.exe" -ForegroundColor Green
+if ($LASTEXITCODE -ne 0) { throw "Build failed" }
+Write-Host "[2/3] Built WorldClock.exe" -ForegroundColor Green
 
-# ---------- 3) 创建开始菜单快捷方式 ----------
+# ---------- 3) Create Start Menu shortcut ----------
 $exe = Join-Path $dir 'WorldClock.exe'
+if ($NoShortcut) {
+    Write-Host "[3/3] Skipped Start Menu shortcut" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "Done. Executable: $exe" -ForegroundColor Cyan
+    return
+}
+
 $startMenu = [Environment]::GetFolderPath('Programs')
-$lnk = Join-Path $startMenu 'World Clock 世界时钟.lnk'
+$lnk = Join-Path $startMenu 'World Clock.lnk'
 $ws = New-Object -ComObject WScript.Shell
 $sc = $ws.CreateShortcut($lnk)
 $sc.TargetPath = $exe
 $sc.WorkingDirectory = $dir
 $sc.IconLocation = (Join-Path $dir 'clock.ico')
-$sc.Description = '桌面世界时钟悬浮小组件'
+$sc.Description = 'Desktop world clock widget'
 $sc.Save()
-Write-Host "[3/3] 已在开始菜单创建快捷方式" -ForegroundColor Green
+Write-Host "[3/3] Created Start Menu shortcut" -ForegroundColor Green
 Write-Host ""
-Write-Host "全部完成! 可执行文件: $exe" -ForegroundColor Cyan
+Write-Host "Done. Executable: $exe" -ForegroundColor Cyan
