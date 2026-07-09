@@ -1,0 +1,11 @@
+WorldClock.exe
+clock.ico
+pin.log
+diag.png
+settings.txt
+*.log
+*.pdb
+*.user
+*.suo
+bin/
+obj/
