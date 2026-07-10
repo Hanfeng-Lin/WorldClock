@@ -89,7 +89,7 @@ namespace WorldClockWidget
         readonly string appDir, cfgPath, citiesPath;
         readonly string runName = "WorldClockWidget";
 
-        const string APP_VERSION = "0.2.0";
+        const string APP_VERSION = "1.0.1";
         const int DEFAULT_WIDTH = 260, PAD = 18, ROWH = 34;
         const int SEP_Y = 112, ROWS_Y = 122, RADIUS = 18;
 
